@@ -13,7 +13,7 @@ import datetime
 
 search = "https://www.linkedin.com/jobs/search/?currentJobId=3743834990&keywords=data%20analyst&origin=SWITCH_SEARCH_VERTICAL"
 
-jobs_url = JobScrapping().getJobsURL(search, max_jobs=20)
+jobs_url = JobScrapping().getJobsURL(search, max_jobs=10)
 
 soup_jobs = JobScrapping().getJobSoup(jobs_url)
 
