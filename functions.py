@@ -4,6 +4,7 @@ import time
 import json
 import requests
 from bs4 import BeautifulSoup as bs
+from urllib.parse import unquote
 
 
 class JobScrapping():
@@ -34,7 +35,7 @@ class JobScrapping():
 
             for i in range(len(list_href)):
                 jobs_url.append(list_href[i]['href'])
-                print(f'Collecting Job URL {c}/{num_pages * 25}')
+                print(f'Collecting Job URL {c}/{num_pages * 25}',end ='\r')
                 c += 1
                 time.sleep(time_sleep)
                 if c == max_jobs: break
@@ -58,23 +59,28 @@ class JobScrapping():
 
             soup_jobs.append(soup)
 
-            print(f'Collecting Job Post {c}/{len(job_urls)}')
+            print(f'Collecting Job Post {c}/{len(job_urls)}', end ='\r')
             c += 1
             time.sleep(time_sleep)
         
         return soup_jobs
 
     def getJobAttr(self, soup_job):
+        try:
 
-        # String JSON
-        json_string = soup_job.find_all('script', attrs = {'type':'application/ld+json'})[0].text
+            # String JSON (Not Available for all posts)
 
-        # Convert a string JSON to Python Object
-        json_obj = json.loads(json_string)
+            json_string = soup_job.find_all('script', attrs = {'type':'application/ld+json'})[0].text
 
-        # Now, the json is a Python dictionary
-        return json_obj
-    
+            # Convert a string JSON to Python Object
+            json_obj = json.loads(json_string)
+
+            # Now, the json is a Python dictionary
+            return json_obj
+        
+        except:
+            return {}
+
 
     def getJobMetaData(self, soup_job):
         postMetaData = {}
@@ -107,9 +113,24 @@ class JobScrapping():
         return fullDescription
     
     def getJobPost(self, soup_job):
+
         jobPost = {
-            'attributes': self.getJobAttr(self, soup_job),
-            'metadata': self.getJobMetaData(self, soup_job),
-            'fullDescription': self.getFullJobDescription(self, soup_job)
+            'attributes': self.getJobAttr(soup_job),
+            'metadata': self.getJobMetaData(soup_job),
+            'fullDescription': self.getFullJobDescription(soup_job)
         }
         return jobPost
+    
+    
+    def getSearchParameters(self, search_url):
+
+        decoded_url = unquote(search_url)
+
+        search_parameters = {}
+
+        # Split the parameters and then add the key and value
+        for param in decoded_url.split('?')[1].split('&'):
+            parameter = param.split('=')
+            search_parameters[parameter[0]] = parameter[1]
+
+        return search_parameters
