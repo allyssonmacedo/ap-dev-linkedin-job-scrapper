@@ -1,13 +1,6 @@
 # Imports
-import re
-import time
-import json
-import requests
-import bs4
 import connectmongo
-from bs4 import BeautifulSoup as bs
 from functions import JobScrapping
-from urllib.parse import unquote
 import datetime
 
 
